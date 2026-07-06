@@ -1,0 +1,64 @@
+<?php
+
+require_once "../config/database.php";
+
+class ProductModel
+{
+    private $conn;
+
+    //------------------------------------------------
+    // membuat koneksi ke database menggunakan PDO
+    //------------------------------------------------
+    public function __construct()
+    {
+        $database = new Database();
+
+        $this->conn = $database->connect();
+    }
+
+
+    //------------------------------------------------
+    // mengambil semua data produk dari database
+    //------------------------------------------------
+    public function getAllProducts($search = '', $category = 0)
+    {
+        $sql = "SELECT
+                    p.*,
+                    c.name AS category_name
+                FROM products p
+                INNER JOIN categories c
+                    ON p.category_id = c.id
+                WHERE
+                    p.deleted_at IS NULL
+                    AND p.status = 'active'";
+
+        $params = [];
+
+        // Filter pencarian
+        if (!empty($search)) {
+            $sql .= " AND p.name LIKE :search";
+            $params[':search'] = "%{$search}%";
+        }
+
+        // Filter kategori
+        if ($category > 0) {
+            $sql .= " AND p.category_id = :category";
+            $params[':category'] = $category;
+        }
+
+        // Urutkan produk terbaru
+        $sql .= " ORDER BY p.created_at DESC";
+
+        $statement = $this->conn->prepare($sql);
+
+        foreach ($params as $key => $value) {
+            $statement->bindValue($key, $value);
+        }
+
+        $statement->execute();
+
+        return $statement->fetchAll();
+    }
+
+
+}
