@@ -37,19 +37,98 @@ data-bs-target="#navbarNav">
 </ul>
 
 <!-- Right: Auth buttons -->
-<ul class="navbar-nav navbar-auth-right ms-lg-auto gap-2">
+<ul class="navbar-nav ms-auto">
 
-<li class="nav-item">
+    <?php if (isset($_SESSION['user'])) : ?>
 
-<a class="nav-link" href="<?= BASE_URL ?>/auth/login">Login</a>
+        <li class="nav-item dropdown">
 
-</li>
+            <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown">
 
-<li class="nav-item">
+                Halo,
+                <strong><?= htmlspecialchars($_SESSION['user']['name']) ?></strong>
 
-<a class="btn btn-outline-dark btn-sm ms-1" href="<?= BASE_URL ?>/auth/register">Register</a>
+            </a>
 
-</li>
+            <ul class="dropdown-menu dropdown-menu-end">
+
+                <li>
+
+                    <a
+                        class="dropdown-item"
+                        href="#">
+
+                        Profil
+
+                    </a>
+
+                </li>
+
+                <li>
+
+                    <a
+                        class="dropdown-item"
+                        href="#">
+
+                        Pesanan Saya
+
+                    </a>
+
+                </li>
+
+                <li>
+
+                    <hr class="dropdown-divider">
+
+                </li>
+
+                <li>
+
+                    <a
+                        class="dropdown-item text-danger"
+                        href="<?= BASE_URL ?>/logout">
+
+                        Logout
+
+                    </a>
+
+                </li>
+
+            </ul>
+
+        </li>
+
+    <?php else : ?>
+
+        <li class="nav-item">
+
+            <a
+                class="nav-link"
+                href="<?= BASE_URL ?>/login">
+
+                Login
+
+            </a>
+
+        </li>
+
+        <li class="nav-item">
+
+            <a
+                class="btn btn-primary ms-2"
+                href="<?= BASE_URL ?>/register">
+
+                Register
+
+            </a>
+
+        </li>
+
+    <?php endif; ?>
 
 </ul>
 
