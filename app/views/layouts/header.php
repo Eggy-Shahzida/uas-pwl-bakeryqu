@@ -18,10 +18,92 @@
         rel="stylesheet"
         href="<?= BASE_URL ?>/assets/css/style.css">
 
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
 </head>
 
 <body>
 
 <?php require_once "../app/views/partials/navbar.php"; ?>
+<?php if (isset($_SESSION['success'])) : ?>
+
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+
+        <?= htmlspecialchars($_SESSION['success']) ?>
+
+        <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="alert">
+        </button>
+
+    </div>
+
+    <?php unset($_SESSION['success']); ?>
+
+<?php endif; ?>
+
+
+<?php if (isset($_SESSION['error'])) : ?>
+
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+
+        <?= htmlspecialchars($_SESSION['error']) ?>
+
+        <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="alert">
+        </button>
+
+    </div>
+
+    <?php unset($_SESSION['error']); ?>
+
+<?php endif; ?>
 
 <main class="container py-4">
+    <!-- Flash Success -->
+<?php if (isset($_SESSION['success'])) : ?>
+
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+
+        <i class="bi bi-check-circle-fill me-2"></i>
+
+        <?= htmlspecialchars($_SESSION['success']) ?>
+
+        <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="alert">
+        </button>
+
+    </div>
+
+    <?php unset($_SESSION['success']); ?>
+
+    <?php endif; ?>
+
+
+    <!-- Flash Error -->
+    <?php if (isset($_SESSION['error'])) : ?>
+
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+
+            <?= htmlspecialchars($_SESSION['error']) ?>
+
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert">
+            </button>
+
+        </div>
+
+        <?php unset($_SESSION['error']); ?>
+
+    <?php endif; ?>

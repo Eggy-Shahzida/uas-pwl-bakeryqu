@@ -95,36 +95,50 @@ class AuthController
             empty($password) ||
             empty($confirmPassword)
         ) {
-            exit('Semua field wajib diisi.');
+            $_SESSION['error'] = "Semua field wajib diisi.";
+            header("Location: " . BASE_URL . "/register");
+            exit;
         }
 
         // Validasi nama
         if (!preg_match('/^[\p{L}\s]+$/u', $name)) {
-            exit('Nama hanya boleh berisi huruf dan spasi.');
+            $_SESSION['error'] = "Nama hanya boleh berisi huruf dan spasi.";
+            header("Location: " . BASE_URL . "/register");
+            exit;
         }
         if (strlen($name) < 3 || strlen($name) > 100) {
-            exit('Nama harus terdiri dari 3 sampai 100 karakter.');
+            $_SESSION['error'] = "Nama harus terdiri dari 3 sampai 100 karakter.";
+            header("Location: " . BASE_URL . "/register");
+            exit;
         }
 
         // Validasi email
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            exit('Format email tidak valid.');
+            $_SESSION['error'] = "Format email tidak valid.";
+            header("Location: " . BASE_URL . "/register");
+            exit;
         }
 
         // Password minimal
         if (strlen($password) < 8) {
-            exit('Password minimal 8 karakter.');
+            $_SESSION['error'] = "Password minimal 8 karakter.";
+            header("Location: " . BASE_URL . "/register");
+            exit;
         }
 
         // Konfirmasi password
         if ($password !== $confirmPassword) {
-            exit('Konfirmasi password tidak sesuai.');
+            $_SESSION['error'] = "Konfirmasi password tidak sesuai.";
+            header("Location: " . BASE_URL . "/register");
+            exit;
         }
 
         // Cek email sudah digunakan
         $user = $this->userModel->findByEmail($email);
         if ($user) {
-            exit('Email sudah terdaftar.');
+            $_SESSION['error'] = "Email sudah terdaftar.";
+            header("Location: " . BASE_URL . "/register");
+            exit;
         }
 
         // Simpan user
@@ -139,9 +153,12 @@ class AuthController
         $success = $this->userModel->create($data);
         // Redirect
         if ($success) {
+            $_SESSION['success'] = "Registrasi berhasil. Silakan login.";
             header("Location: " . BASE_URL . "/login");
             exit;
         }
+        $_SESSION['error'] = "Registrasi gagal.";
+        header("Location: " . BASE_URL . "/register");
         exit('Register gagal.');
     }
 

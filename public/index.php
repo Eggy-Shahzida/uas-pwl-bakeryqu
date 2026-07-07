@@ -51,11 +51,8 @@ switch ($url) {
 
     //==================================================
     case 'register':
-
         require_once "../app/controllers/AuthController.php";
-
         $controller = new AuthController();
-
         // jika metode request adalah POST, maka panggil method register()
         // jika metode request adalah GET, maka panggil method showRegister()
         if ($method === 'POST') {
@@ -63,21 +60,24 @@ switch ($url) {
         } else {
             $controller->showRegister();
         }
-
         break;
 
     //==================================================
     case 'logout':
-
         require_once "../app/controllers/AuthController.php";
-
         $controller = new AuthController();
-
         $controller->logout();
-
         break;
-        
+
+    //==================================================
     default:
+        // Cek apakah URL diawali dengan products/
+        if (preg_match('#^products/(.+)$#', $url, $matches)) {
+            require_once "../app/controllers/ProductController.php";
+            $controller = new ProductController();
+            $controller->detail($matches[1]);
+            break;
+        }
 
         echo "<h1>404</h1>";
 

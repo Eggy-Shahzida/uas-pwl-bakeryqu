@@ -159,7 +159,7 @@ require_once "../app/views/layouts/header.php";
                     </p>
 
                     <a
-                        href="#"
+                        href="<?= BASE_URL ?>/products/<?= urlencode($product['slug']) ?>"
                         class="btn btn-outline-primary mt-auto">
 
                         Lihat Detail

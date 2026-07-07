@@ -31,33 +31,47 @@ class ProductModel
                 WHERE
                     p.deleted_at IS NULL
                     AND p.status = 'active'";
-
         $params = [];
-
         // Filter pencarian
         if (!empty($search)) {
             $sql .= " AND p.name LIKE :search";
             $params[':search'] = "%{$search}%";
         }
-
         // Filter kategori
         if ($category > 0) {
             $sql .= " AND p.category_id = :category";
             $params[':category'] = $category;
         }
-
         // Urutkan produk terbaru
         $sql .= " ORDER BY p.created_at DESC";
-
         $statement = $this->conn->prepare($sql);
-
         foreach ($params as $key => $value) {
             $statement->bindValue($key, $value);
         }
-
         $statement->execute();
-
         return $statement->fetchAll();
+    }
+
+    //------------------------------------------------
+    // mengambil satu produk berdasarkan slug
+    //------------------------------------------------
+    public function getProductBySlug($slug)
+    {
+        $sql = "SELECT
+                    p.*,
+                    c.name AS category_name
+                FROM products p
+                INNER JOIN categories c
+                    ON p.category_id = c.id
+                WHERE
+                    p.slug = :slug
+                    AND p.status = 'active'
+                    AND p.deleted_at IS NULL
+                LIMIT 1";
+        $statement = $this->conn->prepare($sql);
+        $statement->bindValue(':slug', $slug);
+        $statement->execute();
+        return $statement->fetch(PDO::FETCH_ASSOC);
     }
 
 

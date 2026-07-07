@@ -28,19 +28,36 @@ class ProductController
         $search = isset($_GET['search'])
             ? trim($_GET['search'])
             : '';
-
         // Ambil kategori
         $category = isset($_GET['category'])
             ? (int) $_GET['category']
             : 0;
-
         // Mengambil data kategori
         $categories = $this->categoryModel->getAllCategories();
-
         // ambil data produk
         $products = $this->productModel->getAllProducts($search, $category);
-
         // Menampilkan halaman
         require_once "../app/views/product/index.php";
+    }
+
+    //------------------------------------------------
+    // menampilkan detail produk
+    //------------------------------------------------
+    public function detail($slug)
+    {
+        $product = $this->productModel->getProductBySlug($slug);
+
+        if (!$product) {
+
+            http_response_code(404);
+
+            echo "<h1>404</h1>";
+
+            echo "<p>Produk tidak ditemukan.</p>";
+
+            exit;
+        }
+
+        require_once "../app/views/product/detail.php";
     }
 }
