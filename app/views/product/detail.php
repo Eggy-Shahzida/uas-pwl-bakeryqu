@@ -120,55 +120,68 @@ require_once "../app/views/layouts/header.php";
 
         <!-- Quantity -->
 
-        <div class="mb-4">
+        <form action="<?= BASE_URL ?>/cart/add" method="POST">
 
-            <label class="form-label fw-semibold">
+            <input
+                type="hidden"
+                name="product_id"
+                value="<?= $product['id'] ?>">
 
-                Jumlah
+            <div class="mb-4">
 
-            </label>
+                <label class="form-label fw-semibold">
 
-            <div class="input-group" style="width:170px;">
+                    Jumlah
 
-                <button
-                    class="btn btn-outline-secondary"
-                    id="btnMinus">
+                </label>
 
-                    -
+                <div class="input-group" style="width:170px;">
 
-                </button>
+                    <button
+                        type="button"
+                        class="btn btn-outline-secondary"
+                        id="btnMinus">
 
-                <input
-                    type="text"
-                    id="quantity"
-                    data-stock="<?= $product['stock'] ?>"
-                    class="form-control text-center"
-                    value="1"
-                    readonly>
+                        -
 
-                <button
-                    class="btn btn-outline-secondary"
-                    id="btnPlus">
+                    </button>
 
-                    +
+                    <input
+                        type="text"
+                        id="quantity"
+                        name="quantity"
+                        class="form-control text-center"
+                        value="1"
+                        data-stock="<?= $product['stock'] ?>"
+                        readonly>
 
-                </button>
+                    <button
+                        type="button"
+                        class="btn btn-outline-secondary"
+                        id="btnPlus">
+
+                        +
+
+                    </button>
+
+                </div>
 
             </div>
 
-        </div>
+            <button
+                type="submit"
+                class="btn btn-primary btn-lg"
+                <?= ($product['stock'] <= 0) ? 'disabled' : '' ?>>
+
+                <i class="bi bi-cart-plus"></i>
+
+                Tambah ke Keranjang
+
+            </button>
+
+        </form>
 
 
-        <button
-            class="btn btn-primary btn-lg"
-            id="btnAddCart">
-            <?= ($product['stock'] <= 0) ? 'disabled' : '' ?>>
-
-            <i class="bi bi-cart-plus"></i>
-
-            Tambah ke Keranjang
-
-        </button>
         <?php if($product['stock'] <= 0): ?>
 
             <div class="text-danger mt-2">

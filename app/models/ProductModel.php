@@ -53,6 +53,32 @@ class ProductModel
     }
 
     //------------------------------------------------
+    // mengambil satu produk berdasarkan id
+    //------------------------------------------------
+    public function getProductById($id)
+    {
+        $sql = "SELECT
+                    p.*,
+                    c.name AS category_name
+                FROM products p
+                INNER JOIN categories c
+                    ON p.category_id = c.id
+                WHERE
+                    p.id = :id
+                    AND p.deleted_at IS NULL
+                    AND p.status = 'active'
+                LIMIT 1";
+
+        $statement = $this->conn->prepare($sql);
+
+        $statement->bindValue(':id', $id, PDO::PARAM_INT);
+
+        $statement->execute();
+
+        return $statement->fetch(PDO::FETCH_ASSOC);
+    }
+
+    //------------------------------------------------
     // mengambil satu produk berdasarkan slug
     //------------------------------------------------
     public function getProductBySlug($slug)

@@ -31,6 +31,14 @@ data-bs-target="#navbarNav">
 <a class="nav-link" href="<?= BASE_URL ?>/products">Produk</a>
 
 </li>
+<li class="nav-item">
+
+<a href="<?= BASE_URL ?>/cart" class="nav-link">
+    <i class="bi bi-cart3"></i>
+    Keranjang
+</a>
+
+</li>
 
 <!-- Tambahkan menu lain di sini jika diperlukan -->
 

@@ -68,6 +68,43 @@ switch ($url) {
         $controller = new AuthController();
         $controller->logout();
         break;
+    //==================================================
+    case 'cart':
+        require_once "../app/controllers/CartController.php";
+        $controller = new CartController();
+        $controller->index();
+        break;
+
+    //==================================================
+    case 'cart/add':
+        require_once "../app/controllers/CartController.php";
+        $controller = new CartController();
+        $controller->add();
+        break;
+
+    //==================================================
+    case 'cart/update':
+        require_once "../app/controllers/CartController.php";
+        $controller = new CartController();
+        if ($method === 'POST') {
+            $controller->update();
+        }
+        break;
+
+    //==================================================
+    case 'cart/remove':
+
+        require_once "../app/controllers/CartController.php";
+
+        $controller = new CartController();
+
+        if ($method === 'POST') {
+
+            $controller->remove();
+
+        }
+
+        break;
 
     //==================================================
     default:
