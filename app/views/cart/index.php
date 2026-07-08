@@ -216,11 +216,23 @@ require_once "../app/views/layouts/header.php";
 
         <div class="text-end mt-4">
 
-            <a href="#" class="btn btn-success">
 
-                Checkout
 
-            </a>
+            <form
+                            action="<?= BASE_URL ?>/checkout"
+                            
+                            class="m-0"
+                            >
+
+                            <button
+                                type="submit"
+                                class="btn btn-success">
+
+                               Checkout
+
+                            </button>
+
+            </form>
 
         </div>
 

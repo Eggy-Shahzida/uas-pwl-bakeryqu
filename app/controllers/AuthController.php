@@ -33,23 +33,31 @@ class AuthController
         
         // Validasi input
         if (empty($email) || empty($password)) {
-            exit('Email dan password wajib diisi.');
+            $_SESSION['error'] = "Email dan password wajib diisi.";
+            header("Location: " . BASE_URL . "/login");
+            exit;
         }
         
         // Validasi email
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            exit('Format email tidak valid.');
+            $_SESSION['error'] = "Format email tidak valid.";
+            header("Location: " . BASE_URL . "/login");
+            exit;
         }
         
         // Cari user berdasarkan email
         $user = $this->userModel->findByEmail($email);
         if (!$user) {
-            exit('Email atau password salah.');
+            $_SESSION['error'] = "Email atau password salah.";
+            header("Location: " . BASE_URL . "/login");
+            exit;
         }
         
         // Verifikasi password
         if (!password_verify($password, $user['password'])) {
-            exit('Email atau password salah.');
+            $_SESSION['error'] = "Email atau password salah.";
+            header("Location: " . BASE_URL . "/login");
+            exit;
         }
         
         // Simpan session login

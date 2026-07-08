@@ -93,17 +93,66 @@ switch ($url) {
 
     //==================================================
     case 'cart/remove':
-
         require_once "../app/controllers/CartController.php";
-
         $controller = new CartController();
-
         if ($method === 'POST') {
-
             $controller->remove();
-
         }
+        break;
 
+    //==================================================
+    case 'checkout':
+        require_once "../app/controllers/CheckoutController.php";
+        $controller = new CheckoutController();
+        if ($method === 'POST') {
+            $controller->process();
+        } else {
+            $controller->index();
+        }
+        break;
+
+    //==================================================
+    // AJAX step 2: kota/kabupaten berdasarkan provinsi
+    case 'checkout/get-cities':
+        require_once "../app/controllers/CheckoutController.php";
+        $controller = new CheckoutController();
+        $controller->getCities();
+        break;
+ 
+    //==================================================
+    // AJAX step 3: kecamatan berdasarkan kota
+    case 'checkout/get-districts':
+        require_once "../app/controllers/CheckoutController.php";
+        $controller = new CheckoutController();
+        $controller->getDistricts();
+        break;
+ 
+    //==================================================
+    // AJAX: hitung ongkos kirim
+    case 'checkout/get-cost':
+        require_once "../app/controllers/CheckoutController.php";
+        $controller = new CheckoutController();
+        if ($method === 'POST') {
+            $controller->getCost();
+        }
+        break;
+
+    //==================================================
+    // menampilkan halaman review sebelum konfirmasi pesanan
+    case 'checkout/review':
+        require_once "../app/controllers/CheckoutController.php";
+        $controller = new CheckoutController();
+        $controller->review();
+        break;
+ 
+    //==================================================
+    // konfirmasi pesanan final (placeholder, lihat TODO di controller)
+    case 'checkout/confirm':
+        require_once "../app/controllers/CheckoutController.php";
+        $controller = new CheckoutController();
+        if ($method === 'POST') {
+            $controller->confirm();
+        }
         break;
 
     //==================================================
