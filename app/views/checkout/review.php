@@ -51,6 +51,12 @@ require_once "../app/views/layouts/header.php";
                         <td class="text-muted align-top">Alamat Lengkap</td>
                         <td>: <?= nl2br(htmlspecialchars($checkoutData['address'])) ?></td>
                     </tr>
+                    <?php if (!empty($checkoutData['note'])): ?>
+                    <tr>
+                        <td class="text-muted align-top">Catatan</td>
+                        <td>: <?= nl2br(htmlspecialchars($checkoutData['note'])) ?></td>
+                    </tr>
+                    <?php endif; ?>
                     <tr>
                         <td class="text-muted">Kurir</td>
                         <td>

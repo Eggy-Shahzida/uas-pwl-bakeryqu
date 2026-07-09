@@ -1,11 +1,17 @@
 <?php
 
 require_once "../app/models/CartModel.php";
+require_once "../app/models/ProductModel.php";
+require_once "../app/models/OrderModel.php";
 require_once "../app/service/ShippingService.php";
 
 class CheckoutController
 {
     private $cartModel;
+
+    private $productModel;
+
+    private $orderModel;
 
     private $shippingService;
 
@@ -15,6 +21,10 @@ class CheckoutController
     public function __construct()
     {
         $this->cartModel = new CartModel();
+
+        $this->productModel = new ProductModel();
+
+        $this->orderModel = new OrderModel();
 
         $this->shippingService = new ShippingService();
     }
@@ -210,6 +220,7 @@ class CheckoutController
         $districtId = (int) ($_POST['district_id'] ?? 0);
         $districtName = trim($_POST['district_name'] ?? '');
         $address = trim($_POST['address'] ?? '');
+        $note = trim($_POST['note'] ?? '');
         $courier = trim($_POST['courier'] ?? 'jne');
         $shippingCost = (int) ($_POST['shipping_cost'] ?? 0);
         $shippingService = trim($_POST['shipping_service'] ?? '');
@@ -263,6 +274,7 @@ class CheckoutController
             'district_id' => $districtId,
             'district_name' => $districtName,
             'address' => $address,
+            'note' => $note,
             'courier' => $courier,
             'shipping_cost' => $shippingCost,
             'shipping_service' => $shippingService,
@@ -318,34 +330,96 @@ class CheckoutController
     }
 
     //------------------------------------------------
-    // placeholder: konfirmasi pesanan final
-    // TODO: ganti dengan pembuatan order sesungguhnya
-    // setelah OrderModel/OrderController tersedia.
+    // konfirmasi pesanan final: simpan order + order_items,
+    // kurangi stok, kosongkan cart, lalu arahkan ke detail pesanan
     //------------------------------------------------
     public function confirm()
     {
         if (!isset($_SESSION['user'])) {
+            $_SESSION['error'] = "Silakan login terlebih dahulu.";
             header("Location: " . BASE_URL . "/login");
             exit;
         }
 
         if (empty($_SESSION['checkout_data'])) {
+            $_SESSION['error'] = "Silakan lengkapi data pengiriman terlebih dahulu.";
             header("Location: " . BASE_URL . "/checkout");
             exit;
         }
 
-        // ============================================================
-        // TODO (tahap selanjutnya):
-        // 1. Simpan pesanan ke tabel `orders` + `order_items` via OrderModel
-        // 2. Kurangi stok produk
-        // 3. Kosongkan cart user
-        // 4. Hapus $_SESSION['checkout_data']
-        // 5. Redirect ke halaman detail pesanan / pembayaran
-        // ============================================================
+        $userId = $_SESSION['user']['id'];
 
-        $_SESSION['error'] = "Fitur konfirmasi pesanan belum tersedia. Hubungi developer untuk melanjutkan implementasi OrderModel.";
+        $checkoutData = $_SESSION['checkout_data'];
 
-        header("Location: " . BASE_URL . "/checkout/review");
+        $cart = $this->cartModel->getCartByUser($userId);
+
+        $items = $cart ? $this->cartModel->getCartItems($cart['id']) : [];
+
+        if (empty($items)) {
+            $_SESSION['error'] = "Keranjang masih kosong.";
+            header("Location: " . BASE_URL . "/products");
+            exit;
+        }
+
+        // Hitung ulang subtotal & total di server (jangan percaya nilai dari client)
+        $subtotal = 0;
+
+        foreach ($items as $item) {
+            $subtotal += $item['subtotal'];
+        }
+
+        $total = $subtotal + $checkoutData['shipping_cost'];
+
+        // 1) Buat order
+        $orderId = $this->orderModel->createOrder([
+            'order_code' => $this->orderModel->generateOrderCode(),
+            'user_id' => $userId,
+            'receiver_name' => $checkoutData['receiver_name'],
+            'phone' => $checkoutData['phone'],
+            'province_id' => $checkoutData['province_id'],
+            'province_name' => $checkoutData['province_name'],
+            'city_id' => $checkoutData['city_id'],
+            'city_name' => $checkoutData['city_name'],
+            'district_id' => $checkoutData['district_id'],
+            'district_name' => $checkoutData['district_name'],
+            'address' => $checkoutData['address'],
+            'note' => $checkoutData['note'] ?? '',
+            'courier' => $checkoutData['courier'],
+            'service' => $checkoutData['shipping_service'],
+            'shipping_cost' => $checkoutData['shipping_cost'],
+            'subtotal' => $subtotal,
+            'total' => $total,
+            'status' => 'pending',
+        ]);
+
+        // 2) Simpan setiap item + kurangi stok produk terkait
+        foreach ($items as $item) {
+
+            $product = $this->productModel->getProductById($item['product_id']);
+
+            $this->orderModel->addOrderItem([
+                'order_id' => $orderId,
+                'product_id' => $item['product_id'],
+                'product_name' => $item['name'],
+                'product_image' => $product['image'] ?? null,
+                'product_weight' => $product['weight'] ?? 500,
+                'price' => $item['price'],
+                'quantity' => $item['quantity'],
+                'subtotal' => $item['subtotal'],
+            ]);
+
+            $this->productModel->decreaseStock($item['product_id'], $item['quantity']);
+        }
+
+        // 3) Kosongkan cart user
+        $this->cartModel->clearCart($cart['id']);
+
+        // 4) Bersihkan data sementara checkout
+        unset($_SESSION['checkout_data']);
+
+        $_SESSION['success'] = "Pesanan berhasil dibuat!";
+
+        header("Location: " . BASE_URL . "/order/" . $orderId);
         exit;
     }
 }

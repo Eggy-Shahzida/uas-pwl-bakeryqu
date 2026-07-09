@@ -175,11 +175,8 @@ class CartModel
     {
         $sql = "DELETE FROM cart_items
                 WHERE id = :id";
-
         $statement = $this->conn->prepare($sql);
-
         $statement->bindValue(':id', $cartItemId);
-
         return $statement->execute();
     }
 
@@ -210,5 +207,19 @@ class CartModel
         $statement->bindValue(':id', $cartItemId, PDO::PARAM_INT);
         $statement->execute();
         return $statement->fetch(PDO::FETCH_ASSOC);
+    }
+
+    //------------------------------------------------
+    // mengosongkan seluruh item pada sebuah cart
+    //------------------------------------------------
+    public function clearCart($cartId)
+    {
+        $sql = "DELETE FROM cart_items WHERE cart_id = :cart_id";
+    
+        $statement = $this->conn->prepare($sql);
+    
+        $statement->bindValue(':cart_id', $cartId, PDO::PARAM_INT);
+    
+        return $statement->execute();
     }
 }

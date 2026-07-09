@@ -100,5 +100,23 @@ class ProductModel
         return $statement->fetch(PDO::FETCH_ASSOC);
     }
 
+    //------------------------------------------------
+    // mengurangi stok produk setelah pesanan dikonfirmasi
+    //------------------------------------------------
+    public function decreaseStock($productId, $quantity)
+    {
+        $sql = "UPDATE products
+                SET stock = stock - :quantity
+                WHERE id = :id
+                    AND stock >= :quantity";
+
+        $statement = $this->conn->prepare($sql);
+
+        $statement->bindValue(':quantity', $quantity, PDO::PARAM_INT);
+
+        $statement->bindValue(':id', $productId, PDO::PARAM_INT);
+
+        return $statement->execute();
+    }
 
 }

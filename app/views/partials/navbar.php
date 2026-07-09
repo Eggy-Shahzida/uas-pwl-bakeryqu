@@ -80,7 +80,7 @@ data-bs-target="#navbarNav">
 
                     <a
                         class="dropdown-item"
-                        href="#">
+                        href="<?= BASE_URL ?>/order">
 
                         Pesanan Saya
 

@@ -156,11 +156,27 @@ switch ($url) {
         break;
 
     //==================================================
+    // daftar pesanan milik user ("Pesanan Saya")
+    case 'order':
+        require_once "../app/controllers/OrderController.php";
+        $controller = new OrderController();
+        $controller->index();
+        break;
+
+    //==================================================
     default:
         // Cek apakah URL diawali dengan products/
         if (preg_match('#^products/(.+)$#', $url, $matches)) {
             require_once "../app/controllers/ProductController.php";
             $controller = new ProductController();
+            $controller->detail($matches[1]);
+            break;
+        }
+ 
+        // Cek apakah URL diawali dengan order/{id}
+        if (preg_match('#^order/(\d+)$#', $url, $matches)) {
+            require_once "../app/controllers/OrderController.php";
+            $controller = new OrderController();
             $controller->detail($matches[1]);
             break;
         }

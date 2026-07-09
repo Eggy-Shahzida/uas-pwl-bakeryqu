@@ -97,6 +97,15 @@ require_once "../app/views/layouts/header.php";
                 </div>
 
                 <div class="mb-3">
+                    <label class="form-label">Catatan (opsional)</label>
+                    <textarea
+                        name="note"
+                        class="form-control"
+                        rows="2"
+                        placeholder="Contoh: titip di satpam, hubungi sebelum kirim, dll."></textarea>
+                </div>
+
+                <div class="mb-3">
                     <label class="form-label">Kurir</label>
                     <select name="courier" id="courier" class="form-select">
                         <option value="jne">JNE</option>
