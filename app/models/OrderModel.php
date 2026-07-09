@@ -153,4 +153,167 @@ class OrderModel
 
         return $statement->fetchAll();
     }
+
+    // =====================================================
+    // ADMIN — KELOLA PESANAN
+    // =====================================================
+
+    //------------------------------------------------
+    // mengambil semua pesanan (lintas user) untuk admin,
+    // opsional filter status, join ke users untuk nama pembeli
+    //------------------------------------------------
+    public function getAllOrders($status = '')
+    {
+        $sql = "SELECT
+                    o.*,
+                    u.name AS buyer_name,
+                    u.email AS buyer_email
+                FROM orders o
+                INNER JOIN users u
+                    ON o.user_id = u.id";
+
+        $params = [];
+
+        if (!empty($status)) {
+            $sql .= " WHERE o.status = :status";
+            $params[':status'] = $status;
+        }
+
+        $sql .= " ORDER BY o.created_at DESC";
+
+        $statement = $this->conn->prepare($sql);
+
+        foreach ($params as $key => $value) {
+            $statement->bindValue($key, $value);
+        }
+
+        $statement->execute();
+
+        return $statement->fetchAll();
+    }
+
+    //------------------------------------------------
+    // mengambil satu pesanan untuk admin (lintas user, tanpa batasan user_id)
+    //------------------------------------------------
+    public function getOrderByIdForAdmin($orderId)
+    {
+        $sql = "SELECT
+                    o.*,
+                    u.name AS buyer_name,
+                    u.email AS buyer_email
+                FROM orders o
+                INNER JOIN users u
+                    ON o.user_id = u.id
+                WHERE o.id = :id
+                LIMIT 1";
+
+        $statement = $this->conn->prepare($sql);
+
+        $statement->bindValue(':id', $orderId, PDO::PARAM_INT);
+
+        $statement->execute();
+
+        return $statement->fetch(PDO::FETCH_ASSOC);
+    }
+
+    //------------------------------------------------
+    // memperbarui status pesanan
+    //------------------------------------------------
+    public function updateStatus($orderId, $status)
+    {
+        $allowedStatus = ['pending', 'processing', 'shipping', 'completed', 'rejected'];
+
+        if (!in_array($status, $allowedStatus, true)) {
+            return false;
+        }
+
+        $sql = "UPDATE orders
+                SET status = :status
+                WHERE id = :id";
+
+        $statement = $this->conn->prepare($sql);
+
+        $statement->bindValue(':status', $status);
+
+        $statement->bindValue(':id', $orderId, PDO::PARAM_INT);
+
+        return $statement->execute();
+    }
+
+    //------------------------------------------------
+    // menghitung jumlah pesanan berdasarkan status (untuk dashboard)
+    //------------------------------------------------
+    public function countByStatus($status)
+    {
+        $sql = "SELECT COUNT(*) AS total
+                FROM orders
+                WHERE status = :status";
+
+        $statement = $this->conn->prepare($sql);
+
+        $statement->bindValue(':status', $status);
+
+        $statement->execute();
+
+        $result = $statement->fetch(PDO::FETCH_ASSOC);
+
+        return (int) $result['total'];
+    }
+
+    //------------------------------------------------
+    // menghitung total seluruh pesanan (untuk dashboard)
+    //------------------------------------------------
+    public function countAll()
+    {
+        $sql = "SELECT COUNT(*) AS total FROM orders";
+
+        $statement = $this->conn->prepare($sql);
+
+        $statement->execute();
+
+        $result = $statement->fetch(PDO::FETCH_ASSOC);
+
+        return (int) $result['total'];
+    }
+
+    //------------------------------------------------
+    // menjumlahkan total pendapatan dari pesanan yang sudah selesai
+    //------------------------------------------------
+    public function getTotalRevenue()
+    {
+        $sql = "SELECT COALESCE(SUM(total), 0) AS revenue
+                FROM orders
+                WHERE status = 'completed'";
+
+        $statement = $this->conn->prepare($sql);
+
+        $statement->execute();
+
+        $result = $statement->fetch(PDO::FETCH_ASSOC);
+
+        return (float) $result['revenue'];
+    }
+
+    //------------------------------------------------
+    // mengambil beberapa pesanan terbaru (untuk dashboard)
+    //------------------------------------------------
+    public function getRecentOrders($limit = 5)
+    {
+        $sql = "SELECT
+                    o.*,
+                    u.name AS buyer_name
+                FROM orders o
+                INNER JOIN users u
+                    ON o.user_id = u.id
+                ORDER BY o.created_at DESC
+                LIMIT :limit";
+
+        $statement = $this->conn->prepare($sql);
+
+        $statement->bindValue(':limit', $limit, PDO::PARAM_INT);
+
+        $statement->execute();
+
+        return $statement->fetchAll();
+    }
 }

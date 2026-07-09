@@ -70,7 +70,7 @@ class AuthController
         
         // Redirect berdasarkan role
         if ($user['role'] === 'admin') {
-            header("Location: " . BASE_URL);
+            header("Location: " . BASE_URL ."/admin/products");
             exit;
         }
         header("Location: " . BASE_URL);

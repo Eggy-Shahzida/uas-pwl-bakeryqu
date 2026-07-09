@@ -164,7 +164,65 @@ switch ($url) {
         break;
 
     //==================================================
-    default:
+    // ADMIN — Dashboard
+    case 'admin':
+        require_once "../app/controllers/AdminController.php";
+        $controller = new AdminController();
+        $controller->index();
+        break;
+ 
+    //==================================================
+    // ADMIN — Kelola Produk
+    case 'admin/products':
+        require_once "../app/controllers/AdminProductController.php";
+        $controller = new AdminProductController();
+        $controller->index();
+        break;
+ 
+    case 'admin/products/create':
+        require_once "../app/controllers/AdminProductController.php";
+        $controller = new AdminProductController();
+        $controller->create();
+        break;
+ 
+    case 'admin/products/store':
+        require_once "../app/controllers/AdminProductController.php";
+        $controller = new AdminProductController();
+        if ($method === 'POST') {
+            $controller->store();
+        }
+        break;
+
+        
+ 
+    //==================================================
+    // ADMIN — Kelola Pesanan
+    case 'admin/orders':
+        require_once "../app/controllers/AdminOrderController.php";
+        $controller = new AdminOrderController();
+        $controller->index();
+        break;
+
+    // //==================================================
+    // default:
+    //     // Cek apakah URL diawali dengan products/
+    //     if (preg_match('#^products/(.+)$#', $url, $matches)) {
+    //         require_once "../app/controllers/ProductController.php";
+    //         $controller = new ProductController();
+    //         $controller->detail($matches[1]);
+    //         break;
+    //     }
+ 
+    //     // Cek apakah URL diawali dengan order/{id}
+    //     if (preg_match('#^order/(\d+)$#', $url, $matches)) {
+    //         require_once "../app/controllers/OrderController.php";
+    //         $controller = new OrderController();
+    //         $controller->detail($matches[1]);
+    //         break;
+    //     }
+
+        //==================================================
+        default:
         // Cek apakah URL diawali dengan products/
         if (preg_match('#^products/(.+)$#', $url, $matches)) {
             require_once "../app/controllers/ProductController.php";
@@ -177,6 +235,52 @@ switch ($url) {
         if (preg_match('#^order/(\d+)$#', $url, $matches)) {
             require_once "../app/controllers/OrderController.php";
             $controller = new OrderController();
+            $controller->detail($matches[1]);
+            break;
+        }
+ 
+        // ADMIN — edit produk: admin/products/edit/{id}
+        if (preg_match('#^admin/products/edit/(\d+)$#', $url, $matches)) {
+            require_once "../app/controllers/AdminProductController.php";
+            $controller = new AdminProductController();
+            $controller->edit($matches[1]);
+            break;
+        }
+ 
+        // ADMIN — update produk: admin/products/update/{id}
+        if (preg_match('#^admin/products/update/(\d+)$#', $url, $matches)) {
+            require_once "../app/controllers/AdminProductController.php";
+            $controller = new AdminProductController();
+            if ($method === 'POST') {
+                $controller->update($matches[1]);
+            }
+            break;
+        }
+ 
+        // ADMIN — hapus produk: admin/products/delete/{id}
+        if (preg_match('#^admin/products/delete/(\d+)$#', $url, $matches)) {
+            require_once "../app/controllers/AdminProductController.php";
+            $controller = new AdminProductController();
+            if ($method === 'POST') {
+                $controller->delete($matches[1]);
+            }
+            break;
+        }
+ 
+        // ADMIN — ubah status pesanan: admin/orders/{id}/status
+        if (preg_match('#^admin/orders/(\d+)/status$#', $url, $matches)) {
+            require_once "../app/controllers/AdminOrderController.php";
+            $controller = new AdminOrderController();
+            if ($method === 'POST') {
+                $controller->updateStatus($matches[1]);
+            }
+            break;
+        }
+ 
+        // ADMIN — detail pesanan: admin/orders/{id}
+        if (preg_match('#^admin/orders/(\d+)$#', $url, $matches)) {
+            require_once "../app/controllers/AdminOrderController.php";
+            $controller = new AdminOrderController();
             $controller->detail($matches[1]);
             break;
         }

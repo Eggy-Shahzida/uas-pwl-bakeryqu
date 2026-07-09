@@ -82,4 +82,22 @@ class UserModel
 
         return $statement->fetch();
     }
+
+    //------------------------------------------------
+    // Menghitung jumlah customer (untuk dashboard admin)
+    //------------------------------------------------
+    public function countCustomers()
+    {
+        $sql = "SELECT COUNT(*) AS total
+                FROM users
+                WHERE role = 'customer'";
+
+        $statement = $this->conn->prepare($sql);
+
+        $statement->execute();
+
+        $result = $statement->fetch();
+
+        return (int) $result['total'];
+    }
 }
