@@ -1,10 +1,13 @@
 <?php
 
 require_once "../app/models/OrderModel.php";
+require_once "../app/models/ProductModel.php";
 
 class AdminOrderController
 {
     private $orderModel;
+
+    private $productModel;
 
     //------------------------------------------------
     // membuat objek model & pastikan yang akses adalah admin
@@ -18,6 +21,8 @@ class AdminOrderController
         }
 
         $this->orderModel = new OrderModel();
+
+        $this->productModel = new ProductModel();
     }
 
     //------------------------------------------------
@@ -52,6 +57,9 @@ class AdminOrderController
 
     //------------------------------------------------
     // memperbarui status pesanan
+    // - jika status berubah MENJADI 'rejected' -> stok produk dikembalikan
+    // - jika status berubah DARI 'rejected' ke status lain -> stok dikurangi lagi
+    //   (supaya konsisten kalau admin salah klik / batal menolak)
     //------------------------------------------------
     public function updateStatus($id)
     {
@@ -65,17 +73,50 @@ class AdminOrderController
             exit;
         }
 
-        $status = $_POST['status'] ?? '';
+        $newStatus = $_POST['status'] ?? '';
 
         $allowedStatus = ['pending', 'processing', 'shipping', 'completed', 'rejected'];
 
-        if (!in_array($status, $allowedStatus, true)) {
+        if (!in_array($newStatus, $allowedStatus, true)) {
             $_SESSION['error'] = "Status tidak valid.";
             header("Location: " . BASE_URL . "/admin/orders/{$id}");
             exit;
         }
 
-        $this->orderModel->updateStatus($id, $status);
+        $oldStatus = $order['status'];
+
+        // Status tidak berubah, tidak perlu proses apa-apa
+        if ($oldStatus === $newStatus) {
+            $_SESSION['success'] = "Status pesanan berhasil diperbarui.";
+            header("Location: " . BASE_URL . "/admin/orders/{$id}");
+            exit;
+        }
+
+        $items = $this->orderModel->getOrderItems($id);
+
+        // Transisi -> 'rejected': kembalikan stok produk
+        if ($newStatus === 'rejected' && $oldStatus !== 'rejected') {
+
+            foreach ($items as $item) {
+                if ($item['product_id']) {
+                    $this->productModel->increaseStock($item['product_id'], $item['quantity']);
+                }
+            }
+
+        }
+
+        // Transisi dari 'rejected' -> status lain: kurangi stok lagi
+        if ($oldStatus === 'rejected' && $newStatus !== 'rejected') {
+
+            foreach ($items as $item) {
+                if ($item['product_id']) {
+                    $this->productModel->decreaseStock($item['product_id'], $item['quantity']);
+                }
+            }
+
+        }
+
+        $this->orderModel->updateStatus($id, $newStatus);
 
         $_SESSION['success'] = "Status pesanan berhasil diperbarui.";
 

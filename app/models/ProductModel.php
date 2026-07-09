@@ -119,6 +119,24 @@ class ProductModel
         return $statement->execute();
     }
 
+    //------------------------------------------------
+    // menambah kembali stok produk (mis. saat pesanan ditolak/dibatalkan)
+    //------------------------------------------------
+    public function increaseStock($productId, $quantity)
+    {
+        $sql = "UPDATE products
+                SET stock = stock + :quantity
+                WHERE id = :id";
+
+        $statement = $this->conn->prepare($sql);
+
+        $statement->bindValue(':quantity', $quantity, PDO::PARAM_INT);
+
+        $statement->bindValue(':id', $productId, PDO::PARAM_INT);
+
+        return $statement->execute();
+    }
+
     // =====================================================
     // ADMIN — CRUD PRODUK
     // =====================================================
